@@ -34,6 +34,18 @@ class CompletableFutureHelloWorldTest {
     }
 
     @Test
+    void helloWorldThreeAsyncCallsCustomThreadPool() {
+        String helloWorld = completableFutureHelloWorld.helloWorldThreeAsyncCallsApproachCustomThreadPool();
+        assertEquals("HELLO WORLD! THIRD COMPLETABLEFUTURE", helloWorld);
+    }
+
+    @Test
+    void helloWorldThreeAsyncCallsAsync() {
+        String helloWorld = completableFutureHelloWorld.helloWorldThreeAsyncCallsApproachAsync();
+        assertEquals("HELLO WORLD! THIRD COMPLETABLEFUTURE", helloWorld);
+    }
+
+    @Test
     void helloWorldThenCompose() {
         stopWatchReset();
         startTimer();

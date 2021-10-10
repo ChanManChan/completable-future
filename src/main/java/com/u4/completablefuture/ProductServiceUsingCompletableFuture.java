@@ -98,10 +98,19 @@ public class ProductServiceUsingCompletableFuture {
                     productInfo.setProductOptions(updateInventoryApproach2(productInfo));
                     return productInfo;
                 });
-        CompletableFuture<Review> reviewCompletableFuture = CompletableFuture.supplyAsync(() -> reviewService.retrieveReviews(productId));
+        CompletableFuture<Review> reviewCompletableFuture = CompletableFuture
+                .supplyAsync(() -> reviewService.retrieveReviews(productId))
+                .exceptionally(e -> {
+                    log("Handled the exception in the reviewService: " + e.getMessage());
+                    return Review.builder()
+                            .noOfReviews(0)
+                            .overallRating(0.0)
+                            .build();
+                });
 
         Product product = productInfoCompletableFuture
                 .thenCombine(reviewCompletableFuture, (productInfo, review) -> new Product(productId, productInfo, review))
+                .whenComplete((product1, throwable) -> log("Inside whenComplete: " + product1 + " and the exception is " + throwable.getMessage())) // only for logging purposes when an exception happens
                 .join(); // block the thread
 
         stopWatch.stop();
