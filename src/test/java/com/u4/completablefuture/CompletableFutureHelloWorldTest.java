@@ -53,4 +53,10 @@ class CompletableFutureHelloWorldTest {
         completableFuture.thenAccept(s -> assertEquals("HELLO WORLD!", s)).join();
         timeTaken();
     }
+
+    @Test
+    void completableFutureAnyOf() {
+        String helloWorld = completableFutureHelloWorld.completableFutureAnyOf();
+        assertEquals("hello world", helloWorld);
+    }
 }

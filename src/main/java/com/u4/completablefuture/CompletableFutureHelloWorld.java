@@ -2,6 +2,7 @@ package com.u4.completablefuture;
 
 import com.u4.service.HelloWorldService;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -139,6 +140,45 @@ public class CompletableFutureHelloWorld {
         return CompletableFuture.supplyAsync(helloWorldService::hello)
                 .thenCompose(previous -> helloWorldService.worldFuture(previous)) // dependent task, therefore waits for the output from the first operation 'hello function'
                 .thenApply(String::toUpperCase);
+    }
+
+    public String completableFutureAnyOf() {
+        stopWatchReset();
+        startTimer();
+        // make these three calls in parallel but take the response from the call that responds the fastest
+        String HELLO_WORLD = "hello world";
+        // db call
+        CompletableFuture<String> responseFromDb = CompletableFuture.supplyAsync(() -> {
+            delay(1000);
+            log("response from db");
+            return HELLO_WORLD;
+        });
+
+        // rest call
+        CompletableFuture<String> responseFromRest = CompletableFuture.supplyAsync(() -> {
+            delay(2000);
+            log("response from rest call");
+            return HELLO_WORLD;
+        });
+
+        // soap call
+        CompletableFuture<String> responseFromSoap = CompletableFuture.supplyAsync(() -> {
+            delay(3000);
+            log("response from soap call");
+            return HELLO_WORLD;
+        });
+
+        List<CompletableFuture<String>> completableFutureList = List.of(responseFromDb, responseFromRest, responseFromSoap);
+        CompletableFuture<Object> completableFutureAnyOf = CompletableFuture.anyOf(completableFutureList.toArray(new CompletableFuture[completableFutureList.size()]));
+        String result = (String) completableFutureAnyOf.thenApply(o -> {
+                    if (o instanceof String) {
+                        return o;
+                    }
+                    return null;
+                })
+                .join();
+        timeTaken();
+        return result;
     }
 
     public static void main(String[] args) {
